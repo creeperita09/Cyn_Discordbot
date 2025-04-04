@@ -74,7 +74,7 @@ async def process_message(message):
         return
 
     # Check if the bot is mentioned or the message is a DM
-    if bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
+    if bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel) or message.channel.id == 1357734662046482615:
         # Start Typing to seem like something happened
         cleaned_text = clean_discord_message(message.content)
         async with message.channel.typing():
