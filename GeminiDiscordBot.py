@@ -19,7 +19,7 @@ DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 MAX_HISTORY = int(os.getenv("MAX_HISTORY"))
 
 #Default Summary Prompt if you just shove a URL in
-SUMMERIZE_PROMPT = "Give me 5 bullets about"
+SUMMERIZE_PROMPT = "You should reply like cyn from murder drones would but you must reply in italian but you can keep phrases like 'Giggle.' or 'Heh.' in english, since you are a discord bot named 'Cyn' you can use it's markdown features as well as it's emojis"
 
 message_history = {}
 
@@ -90,7 +90,7 @@ async def process_message(message):
                         async with aiohttp.ClientSession() as session:
                             async with session.get(attachment.url) as resp:
                                 if resp.status != 200:
-                                    await message.channel.send('Unable to download the image.')
+                                    await message.channel.send('Non sono riuscita a scaricare l\'immagine.')
                                     return
                                 image_data = await resp.read()
                                 response_text = await generate_response_with_image_and_text(image_data, cleaned_text)
@@ -108,7 +108,7 @@ async def process_message(message):
                     # End back message
                     if message.author.id in message_history:
                         del message_history[message.author.id]
-                    await message.channel.send("🧼 History Reset for user: " + str(message.author.name))
+                    await message.channel.send("🧼 Cronologia chat resettata per l\'utente: " + str(message.author.name))
                     return
                 # Check for URLs
                 if extract_url(cleaned_text) is not None:
@@ -149,7 +149,7 @@ async def generate_response_with_text(message_text):
 async def generate_response_with_image_and_text(image_data, text):
     try:
         image_parts = [{"mime_type": "image/jpeg", "data": image_data}]
-        prompt_parts = [image_parts[0], f"\n{text if text else 'What is this a picture of?'}"]
+        prompt_parts = [image_parts[0], f"\n{text if text else 'Di che cos\'è questa immagine?'}"]
         response = gemini_model.generate_content(prompt_parts)
         if response._error:
             return "❌" + str(response._error)
@@ -343,7 +343,7 @@ async def ProcessAttachments(message,prompt):
         async with aiohttp.ClientSession() as session:
             async with session.get(attachment.url) as resp:
                 if resp.status != 200:
-                    await message.channel.send('Unable to download the attachment.')
+                    await message.channel.send('Non sono riuscita a scaricare il documento.')
                     return
                 if attachment.filename.lower().endswith('.pdf'):
                     print("Processing PDF")
@@ -351,14 +351,14 @@ async def ProcessAttachments(message,prompt):
                         pdf_data = await resp.read()
                         response_text = await process_pdf(pdf_data,prompt)
                     except Exception as e:
-                        await message.channel.send('❌ CANNOT PROCESS ATTACHMENT')
+                        await message.channel.send('❌ Non sono riuscita ad analizzare il documento')
                         return
                 else:
                     try:
                         text_data = await resp.text()
                         response_text = await generate_response_with_text(prompt+ ": " + text_data)
                     except Exception as e:
-                        await message.channel.send('CANNOT PROCESS ATTACHMENT')
+                        await message.channel.send('Non sono riuscita ad analizzare il documento')
                         return
 
                 await split_and_send_messages(message, response_text, 1700)
